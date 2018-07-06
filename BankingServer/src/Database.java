@@ -150,16 +150,29 @@ public class Database
         }
     }
 
+    /**
+     * This method will generate a message with public information,
+     * that will be sent to the client
+     * @return message containing all public inormation for the dhke
+     */
     public String getDhkeMessage() {
         _server_dh_secret = new Random().nextInt(_dh_modulo);
     	long serverPart = (long)((Math.pow(_dh_base, _server_dh_secret)) % _dh_modulo);
     	return _dh_base + "," + _dh_modulo + "," + serverPart;
     }
 
+    /**
+     * @return _dh_modulo The modulo used for the DHKE
+     */
     public int getDhkeModulo() {
     	return _dh_modulo;
     }
     
+    /**
+     * The received information of the client is used to generate 
+     * the final secret key, that will be used for encryption.
+     * @param clientPart The public part, that was sent by the Client
+     */
     public void setDhkeKey(int clientPart) {
     	_dh_key = (long)(Math.pow(clientPart, _server_dh_secret) % _dh_modulo);
     }
