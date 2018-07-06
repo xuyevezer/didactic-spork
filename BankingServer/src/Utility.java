@@ -8,6 +8,11 @@ import java.util.Random;
  */
 public class Utility
 {
+	/**
+	 * Used for generation of random strings
+	 */
+	public static RandomStringGenerator rndStrGen = new RandomStringGenerator();
+	
     /**
      * Controls whether we are in lab or testing mode. Lab mode enables
      * communication features like sending mails and tokens.
@@ -76,8 +81,6 @@ public class Utility
      */
     public static String getRandomString(int length)
     {
-        // Generate random string efficiently
-        int randomIndex = new Random().nextInt(100 - length);
-        return "Sl4idafEVk9X1efZFSAUANyQefaua8JnnAVVQbhuEwrcA4c85yrMaaVjv1TiDbmPdQAD5pfyqcsj1obyEJxGulmaV8ezWYEXpyUs".substring(randomIndex, randomIndex + length);
+    	return rndStrGen.nextAlphaNumString(length);
     }
 }

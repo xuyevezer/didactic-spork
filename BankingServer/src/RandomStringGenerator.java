@@ -1,10 +1,10 @@
 import java.util.Random;
 
-public class RandomString {
+public class RandomStringGenerator {
 
 	private final Random random = new Random();
 
-	public RandomString() {
+	public RandomStringGenerator() {
 		// Nothing happens here
 	}
 
