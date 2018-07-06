@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Scanner;
@@ -33,6 +34,26 @@ public class Database
      * The TCP port the server listens on.
      */
     private int _serverPort;
+    
+    /**
+     * The base for the Diffie-Hellman Key Exchange
+     */
+    private int _dh_base;
+    
+    /**
+     * The modulo for the Diffie-Hellman Key Exchange
+     */
+    private int _dh_modulo;
+    
+    /**
+     * The Diffie-Hellman secret of the server.
+     */
+    private int _server_dh_secret;
+    
+    /**
+     * The Diffie-hellman key for encryption
+     */
+    private BigDecimal _dh_key;
 
     /**
      * Contains the user data like name, password in device list.
@@ -54,7 +75,16 @@ public class Database
 
             // Read server configuration
             _serverPort = rootObj.getInt("port");
+            
+            // Read Diffie_Hellman base
+            _dh_base = rootObj.getInt("dh_base");
+            
+            // Read Diffie_Hellman modulo
+            _dh_modulo = rootObj.getInt("dh_modulo");
 
+            // Read Diffie-Hellman secret
+            _server_dh_secret = rootObj.getInt("server_dh_secret");
+            
             // Read user data
             _users = new LinkedList<>();
             JsonArray usersArr = rootObj.getJsonArray("users");
@@ -99,6 +129,9 @@ public class Database
             // Build root object
             JsonObjectBuilder rootObjBuilder = Json.createObjectBuilder();
             rootObjBuilder.add("port", _serverPort);
+            rootObjBuilder.add("dh_base", _dh_base);
+            rootObjBuilder.add("dh_modulo", _dh_modulo);
+            rootObjBuilder.add("server_dh_secret", _server_dh_secret);
             rootObjBuilder.add("users", usersArrayBuilder.build());
 
             // Create output JSON file
@@ -122,6 +155,24 @@ public class Database
         }
     }
 
+    public String getDhkeMessage() {
+    	int serverPart = (int)((Math.pow(_dh_base, _server_dh_secret)) % _dh_modulo);
+    	System.out.println("ServerPart: " + serverPart);
+    	return _dh_base + "," + _dh_modulo + "," + serverPart;
+    }
+
+    public int getDhkeModulo() {
+    	return _dh_modulo;
+    }
+    
+    public void setDhkeKey(int clientPart) {
+    	System.out.println("ClientPart: " + clientPart);
+        System.out.println("Modulo: " + _dh_modulo);
+        System.out.println("serverSecret: " + _server_dh_secret);
+    	_dh_key = BigDecimal.valueOf(Math.pow(clientPart, _server_dh_secret) % _dh_modulo);
+    	System.out.println("Key: " + _dh_key);
+    }
+    
     /**
      * Checks whether the given credentials belong to a user, and returns his/her
      * ID.
@@ -342,7 +393,7 @@ public class Database
      *            The new database's file name.
      */
     public static void generate(String databaseFile)
-    {
+    {    	
         // Create test user
         UserData testUserData = new UserData("test", "its@its-bank", "test", 10, 0, "", "abcdefgh");
 
@@ -392,11 +443,14 @@ public class Database
         System.out.print("Victim 4 token: ");
         String token4 = sc.nextLine();
         UserData victim4UserData = new UserData("victim4", "victim4@its-bank", password5, 1000, 0, token4, Utility.getRandomString(8));
-
+        
         // Compose database object
         Database database = new Database();
         database._databaseFile = databaseFile;
         database._serverPort = 12300 + attackerGroupId;
+        database._dh_base = 29;
+        database._dh_modulo = 79;
+        database._server_dh_secret = new Random().nextInt() % 79;
         database._users.add(testUserData);
         database._users.add(attackerUserData);
         database._users.add(victim1UserData);
