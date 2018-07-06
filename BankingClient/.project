@@ -14,4 +14,11 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>BankingServer</name>
+			<type>2</type>
+			<location>/home/tim-henrik/Documents/Uni/4. Semester/Cybersecurity/Praktikum/Projekt/didactic-spork/BankingServer/src</location>
+		</link>
+	</linkedResources>
 </projectDescription>

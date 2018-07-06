@@ -190,20 +190,14 @@ public class UserData
         try
         {
             // Compare passwords
-            if(password.length() != _password.length())
-                return false;
-            for(int i = 0; i < password.length(); ++i)
-            {
-                // Matching character?
-                if(password.charAt(i) != _password.charAt(i))
-                    return false;
-
-                // Make brute force attacks inefficient
-                Thread.sleep(100);
-            }
-            return true;
-        }
-        catch(Exception ex)
+        	if(password.equals(_password)) {
+        		return true;
+        	}
+        	
+        	Thread.sleep(3000);
+        	return false;
+        	
+        } catch(Exception ex)
         {
             return false;
         }
