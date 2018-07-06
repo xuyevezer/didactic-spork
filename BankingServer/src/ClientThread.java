@@ -44,6 +44,8 @@ public class ClientThread implements Runnable
      */
     private int _userId = -1;
 
+    private boolean _keyExchanged = false;
+    
     /**
      * Determines whether the client device has been authenticated.
      */
@@ -78,9 +80,11 @@ public class ClientThread implements Runnable
             _clientSocketOutputStream = new DataOutputStream(_clientSocket.getOutputStream());
 
             // Repeat login protocol until login is valid
-            do
+            do {
+            	dhke();
                 _userId = runLogin();
-            while(_userId == -1);
+            }
+            while(_userId == -1 && !_keyExchanged);
             Utility.safePrintln("User " + _userId + " logged in.");
 
             // Run until connection is closed
@@ -141,20 +145,23 @@ public class ClientThread implements Runnable
         }
     }
 
-    public void dhkeEngage() throws IOException {
+    public void dhke() throws IOException {
     	// Wait for dhke request
     	String dhkeRequest = Utility.receivePacket(_clientSocketInputStream);
     	
     	//Send dhke information
-    	Utility.sendPacket(_clientSocketOutputStream, _database.getDhkeMessage());
-    }
-    
-    public void dhkeEnd() throws IOException {
+    	if (dhkeRequest.equals("HELO"))
+    		Utility.sendPacket(_clientSocketOutputStream, _database.getDhkeMessage());
+    	
     	//Wait for clients dhke part
     	String dhkeClientPart = Utility.receivePacket(_clientSocketInputStream);
     	
-    	if(Integer.parseInt(dhkeClientPart) > 0 && Integer.parseInt(dhkeClientPart) < _database.getDhkeModulo()) 
+    	if(Integer.parseInt(dhkeClientPart) >= 0 
+    			&& Integer.parseInt(dhkeClientPart) < _database.getDhkeModulo()) {
     		_database.setDhkeKey(Integer.parseInt(dhkeClientPart));
+    		System.out.println("key set");
+    		_keyExchanged = true;
+    	}
     }
     
     /**

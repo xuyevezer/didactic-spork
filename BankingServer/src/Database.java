@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Scanner;
@@ -52,7 +53,7 @@ public class Database
     /**
      * The Diffie-hellman key for encryption
      */
-    private int _dh_key;
+    private BigDecimal _dh_key;
 
     /**
      * Contains the user data like name, password in device list.
@@ -155,7 +156,9 @@ public class Database
     }
 
     public String getDhkeMessage() {
-    	return _dh_base + "," + _dh_modulo + "," + (Math.pow(_dh_base, _server_dh_secret)) % _dh_base;
+    	int serverPart = (int)((Math.pow(_dh_base, _server_dh_secret)) % _dh_modulo);
+    	System.out.println("ServerPart: " + serverPart);
+    	return _dh_base + "," + _dh_modulo + "," + serverPart;
     }
 
     public int getDhkeModulo() {
@@ -163,7 +166,11 @@ public class Database
     }
     
     public void setDhkeKey(int clientPart) {
-    	_dh_key = (int) Math.pow(_server_dh_secret, clientPart);
+    	System.out.println("ClientPart: " + clientPart);
+        System.out.println("Modulo: " + _dh_modulo);
+        System.out.println("serverSecret: " + _server_dh_secret);
+    	_dh_key = BigDecimal.valueOf(Math.pow(clientPart, _server_dh_secret) % _dh_modulo);
+    	System.out.println("Key: " + _dh_key);
     }
     
     /**
@@ -443,7 +450,7 @@ public class Database
         database._serverPort = 12300 + attackerGroupId;
         database._dh_base = 29;
         database._dh_modulo = 79;
-        database._server_dh_secret = new Random().nextInt(79);
+        database._server_dh_secret = new Random().nextInt() % 79;
         database._users.add(testUserData);
         database._users.add(attackerUserData);
         database._users.add(victim1UserData);

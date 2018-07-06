@@ -31,7 +31,9 @@ public class ClientMain
             DataInputStream inputStream = new DataInputStream(socket.getInputStream());
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 
-            //TODO run DHKE
+            //Run DHKE
+            DhkeTask dhkeTask = new DhkeTask(inputStream, outputStream);
+            dhkeTask.run();
             
             // Run login task
             LoginTask loginTask = new LoginTask(inputStream, outputStream, terminalScanner);
