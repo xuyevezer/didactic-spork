@@ -53,7 +53,7 @@ public class Database
     /**
      * The Diffie-hellman key for encryption
      */
-    private BigDecimal _dh_key;
+    private int _dh_key;
 
     /**
      * Contains the user data like name, password in device list.
@@ -169,7 +169,7 @@ public class Database
     	System.out.println("ClientPart: " + clientPart);
         System.out.println("Modulo: " + _dh_modulo);
         System.out.println("serverSecret: " + _server_dh_secret);
-    	_dh_key = BigDecimal.valueOf(Math.pow(clientPart, _server_dh_secret) % _dh_modulo);
+    	_dh_key = (int)(Math.pow(clientPart, _server_dh_secret) % _dh_modulo);
     	System.out.println("Key: " + _dh_key);
     }
     
@@ -448,9 +448,9 @@ public class Database
         Database database = new Database();
         database._databaseFile = databaseFile;
         database._serverPort = 12300 + attackerGroupId;
-        database._dh_base = 29;
-        database._dh_modulo = 79;
-        database._server_dh_secret = new Random().nextInt() % 79;
+        database._dh_base = 10;
+        database._dh_modulo = 17;
+        database._server_dh_secret = new Random().nextInt() % 17;
         database._users.add(testUserData);
         database._users.add(attackerUserData);
         database._users.add(victim1UserData);

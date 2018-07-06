@@ -12,7 +12,7 @@ public class DhkeTask extends Task
 	
 	private int _client_dh_secret;
 	
-	private BigDecimal _dh_key;
+	private int _dh_key;
 	
     /**
      * Creates a new dhke task.
@@ -59,7 +59,7 @@ public class DhkeTask extends Task
         System.out.println("Modulo: " + dh_modulo);
         System.out.println("clientSecret: " + _client_dh_secret);
         System.out.println("serverPart: " + serverPart);
-        _dh_key = BigDecimal.valueOf((Math.pow(serverPart, _client_dh_secret) % dh_modulo));
+        _dh_key = (int)((Math.pow(serverPart, _client_dh_secret) % dh_modulo));
         System.out.println("Key: " + _dh_key);
     }
 }
