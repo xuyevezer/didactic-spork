@@ -1,7 +1,16 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
+import java.util.Base64;
+import java.util.Calendar;
 import java.util.Random;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Helper class containing auxiliary functions.
@@ -11,7 +20,42 @@ public class Utility
 	/**
 	 * Used for generation of random strings
 	 */
-	public static RandomStringGenerator rndStrGen = new RandomStringGenerator();
+	private static RandomStringGenerator rndStrGen = new RandomStringGenerator();
+	
+	/**
+	 * Used for random numbers
+	 */
+	private static Random random = new Random();
+	
+	/**
+	 * Used for creating macs
+	 */	
+	private static Mac mac;
+	
+	/**
+	 * Used to get the time
+	 */
+	private static Calendar calendar = Calendar.getInstance();
+	
+	/**
+	 * Used to keep track of messages
+	 */
+	private static int msgOutCounter = random.nextInt();
+	
+	/**
+	 * Mac key that was generated from DHKE
+	 */
+	private static Key macKey; //= new SecretKeySpec( key, "AES");
+	
+	/**
+	 * Encryption key that was generated from DHKE
+	 */
+	private static String encKey;
+	
+	/**
+	 * Init Vector for encryption
+	 */
+	private static String initVec;
 	
     /**
      * Controls whether we are in lab or testing mode. Lab mode enables
@@ -44,8 +88,25 @@ public class Utility
      */
     public static void sendPacket(DataOutputStream outputStream, String payload) throws IOException
     {
+    	try {
+			mac = Mac.getInstance("HmacSHA256");
+			mac.init(macKey);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+    	Timestamp timestamp = new Timestamp(calendar.getTimeInMillis());
+    	
+    	//payload + timestamp + counter
+    	String data = payload + "::" + timestamp.getTime() + "::" + msgOutCounter;
+    	
+    	String cipher = Encryptor.encrypt(encKey, initVec, data);
+    	
+    	mac.update(cipher.getBytes());
+    	String hmac = Base64.getEncoder().encodeToString(mac.doFinal());
+    	
         // Encode payload
-        byte[] payloadEncoded = payload.getBytes();
+        byte[] payloadEncoded = (cipher + "::" + hmac).getBytes();
 
         // Write packet length
         outputStream.writeInt(payloadEncoded.length);
