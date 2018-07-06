@@ -141,6 +141,22 @@ public class ClientThread implements Runnable
         }
     }
 
+    public void dhkeEngage() throws IOException {
+    	// Wait for dhke request
+    	String dhkeRequest = Utility.receivePacket(_clientSocketInputStream);
+    	
+    	//Send dhke information
+    	Utility.sendPacket(_clientSocketOutputStream, _database.getDhkeMessage());
+    }
+    
+    public void dhkeEnd() throws IOException {
+    	//Wait for clients dhke part
+    	String dhkeClientPart = Utility.receivePacket(_clientSocketInputStream);
+    	
+    	if(Integer.parseInt(dhkeClientPart) > 0 && Integer.parseInt(dhkeClientPart) < _database.getDhkeModulo()) 
+    		_database.setDhkeKey(Integer.parseInt(dhkeClientPart));
+    }
+    
     /**
      * Executes the login protocol and returns the ID of the user.
      * 

@@ -48,6 +48,11 @@ public class Database
      * The Diffie-Hellman secret of the server.
      */
     private int _server_dh_secret;
+    
+    /**
+     * The Diffie-hellman key for encryption
+     */
+    private int _dh_key;
 
     /**
      * Contains the user data like name, password in device list.
@@ -149,6 +154,18 @@ public class Database
         }
     }
 
+    public String getDhkeMessage() {
+    	return _dh_base + "," + _dh_modulo + "," + (Math.pow(_dh_base, _server_dh_secret)) % _dh_base;
+    }
+
+    public int getDhkeModulo() {
+    	return _dh_modulo;
+    }
+    
+    public void setDhkeKey(int clientPart) {
+    	_dh_key = (int) Math.pow(_server_dh_secret, clientPart);
+    }
+    
     /**
      * Checks whether the given credentials belong to a user, and returns his/her
      * ID.
