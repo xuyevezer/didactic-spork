@@ -1,7 +1,6 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Random;
 
 /**
@@ -12,7 +11,7 @@ public class DhkeTask extends Task
 	
 	private int _client_dh_secret;
 	
-	private int _dh_key;
+	private long _dh_key;
 	
     /**
      * Creates a new dhke task.
@@ -45,21 +44,14 @@ public class DhkeTask extends Task
         String[] dhInfo = dhResponse.split(",");
         int dh_base = Integer.parseInt(dhInfo[0]);
         int dh_modulo = Integer.parseInt(dhInfo[1]);
-        int serverPart = Integer.parseInt(dhInfo[2]);
-        System.out.println("ServerPart: " + serverPart);
+        long serverPart = Long.parseLong(dhInfo[2]);
         
         do
         _client_dh_secret = new Random().nextInt() % dh_modulo;
         while (_client_dh_secret <= 0);
         
-        String dhkeClientPart = "" + (int)(Math.pow(dh_base, _client_dh_secret)) % dh_modulo;
+        String dhkeClientPart = "" + (long)(Math.pow(dh_base, _client_dh_secret)) % dh_modulo;
         Utility.sendPacket(_socketOutputStream, dhkeClientPart);
-        System.out.println("Client Part: " + dhkeClientPart);
-        
-        System.out.println("Modulo: " + dh_modulo);
-        System.out.println("clientSecret: " + _client_dh_secret);
-        System.out.println("serverPart: " + serverPart);
-        _dh_key = (int)((Math.pow(serverPart, _client_dh_secret) % dh_modulo));
-        System.out.println("Key: " + _dh_key);
+        _dh_key = (long)((Math.pow(serverPart, _client_dh_secret) % dh_modulo));
     }
 }

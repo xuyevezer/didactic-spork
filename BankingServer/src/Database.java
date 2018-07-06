@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Scanner;
@@ -53,7 +52,7 @@ public class Database
     /**
      * The Diffie-hellman key for encryption
      */
-    private int _dh_key;
+    private long _dh_key;
 
     /**
      * Contains the user data like name, password in device list.
@@ -81,9 +80,6 @@ public class Database
             
             // Read Diffie_Hellman modulo
             _dh_modulo = rootObj.getInt("dh_modulo");
-
-            // Read Diffie-Hellman secret
-            _server_dh_secret = rootObj.getInt("server_dh_secret");
             
             // Read user data
             _users = new LinkedList<>();
@@ -131,7 +127,6 @@ public class Database
             rootObjBuilder.add("port", _serverPort);
             rootObjBuilder.add("dh_base", _dh_base);
             rootObjBuilder.add("dh_modulo", _dh_modulo);
-            rootObjBuilder.add("server_dh_secret", _server_dh_secret);
             rootObjBuilder.add("users", usersArrayBuilder.build());
 
             // Create output JSON file
@@ -156,8 +151,8 @@ public class Database
     }
 
     public String getDhkeMessage() {
-    	int serverPart = (int)((Math.pow(_dh_base, _server_dh_secret)) % _dh_modulo);
-    	System.out.println("ServerPart: " + serverPart);
+        _server_dh_secret = new Random().nextInt(_dh_modulo);
+    	long serverPart = (long)((Math.pow(_dh_base, _server_dh_secret)) % _dh_modulo);
     	return _dh_base + "," + _dh_modulo + "," + serverPart;
     }
 
@@ -166,11 +161,7 @@ public class Database
     }
     
     public void setDhkeKey(int clientPart) {
-    	System.out.println("ClientPart: " + clientPart);
-        System.out.println("Modulo: " + _dh_modulo);
-        System.out.println("serverSecret: " + _server_dh_secret);
-    	_dh_key = (int)(Math.pow(clientPart, _server_dh_secret) % _dh_modulo);
-    	System.out.println("Key: " + _dh_key);
+    	_dh_key = (long)(Math.pow(clientPart, _server_dh_secret) % _dh_modulo);
     }
     
     /**
@@ -450,7 +441,6 @@ public class Database
         database._serverPort = 12300 + attackerGroupId;
         database._dh_base = 10;
         database._dh_modulo = 17;
-        database._server_dh_secret = new Random().nextInt() % 17;
         database._users.add(testUserData);
         database._users.add(attackerUserData);
         database._users.add(victim1UserData);

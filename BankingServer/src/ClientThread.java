@@ -159,7 +159,6 @@ public class ClientThread implements Runnable
     	if(Integer.parseInt(dhkeClientPart) >= 0 
     			&& Integer.parseInt(dhkeClientPart) < _database.getDhkeModulo()) {
     		_database.setDhkeKey(Integer.parseInt(dhkeClientPart));
-    		System.out.println("key set");
     		_keyExchanged = true;
     	}
     }
