@@ -1,0 +1,1 @@
+JSON API from http://mvnrepository.com/artifact/javax.json/javax.json-api/1.1.2
