@@ -17,6 +17,8 @@ public class ServerMain
             return;
         }
         
+        Utility.setup();
+        
         // Generate new database?
         if(args.length >= 2 && args[1].equalsIgnoreCase("generate"))
         {

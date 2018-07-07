@@ -20,6 +20,8 @@ public class ClientMain
             return;
         }
 
+        Utility.setup();
+        
         // Create scanner for terminal input
         Scanner terminalScanner = new Scanner(System.in);
 

@@ -130,7 +130,7 @@ public class Utility
     	
         // Encode payload
         byte[] payloadEncoded = (cipher + "::" + hmac).getBytes();
-
+        
         // Write packet length
         outputStream.writeInt(payloadEncoded.length);
 
@@ -182,7 +182,7 @@ public class Utility
     	String hmac = Base64.getEncoder().encodeToString(mac.doFinal());
     	
     	// If hmac is diffrent from the recieved one
-    	if(hmac != rcvHmac) {
+    	if(!(hmac.equals(rcvHmac))) {
     		// Someone tamperd with the package
     		// Error
     		return "Error: Bad HMAC.";
@@ -202,13 +202,13 @@ public class Utility
     	Timestamp timestamp = new Timestamp(Long.parseLong(split [1]));
     	int msgCounter = Integer.parseInt(split [2]);
     	
-    	if(timestamp.compareTo(calendar.getTime()) < 0) {
-    		long diffrence = calendar.getTimeInMillis() - timestamp.getTime();
-    		if(diffrence < 300000) {
-    			// TODO: Close Input Stream
-    			return "Error: Recieved Package is too old.";
-    		}
-    	}
+//    	if(timestamp.compareTo(calendar.getTime()) < 0) {
+//    		long diffrence = calendar.getTimeInMillis() - timestamp.getTime();
+//    		if(diffrence < 300000) {
+//    			// TODO: Close Input Stream
+//    			return "Error: Recieved Package is too old.";
+//    		}
+//    	}
     	
     	// Check if messageCounter was already used
     	if(msgInCounter.contains(msgCounter)) {
@@ -222,7 +222,6 @@ public class Utility
         
     	// Add messageCounter to list
     	msgInCounter.add(msgCounter);
-    	
         
         // Decode payload
         return payload;
@@ -267,6 +266,7 @@ public class Utility
      */
     public static String getRandomString(int length)
     {
+    	setup();
     	return rndStrGen.nextAlphaNumString(length);
     }
     
@@ -299,6 +299,10 @@ public class Utility
     		}
     	}
     	
+    	while(key.getBytes().length < 24) {
+    		key += "0";
+    	}
+    	
     	return key;
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
@@ -307,11 +311,15 @@ public class Utility
 		return null;
     }
     
-    public static void setup(long dhke) {
+    public static void setup() {
     	rndStrGen = new RandomStringGenerator();
     	random = new Random();
     	calendar = Calendar.getInstance();
     	msgOutCounter = random.nextInt();
+    	initVec = "1234567890123456";
+    }
+    
+    public static void setup(long dhke) {
     	rawMacKey = generateKey(dhke, 0);
     	encKey = generateKey(dhke, 1);
     	macKey = new SecretKeySpec( rawMacKey.getBytes(), "AES");
