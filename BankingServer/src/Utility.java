@@ -226,6 +226,36 @@ public class Utility
         // Decode payload
         return payload;
     }
+    
+    public static void sendUnencPacket(DataOutputStream outputStream, String payload) throws IOException
+    {
+        // Encode payload
+        byte[] payloadEncoded = payload.getBytes();
+
+        // Write packet length
+        outputStream.writeInt(payloadEncoded.length);
+
+        // Write payload
+        outputStream.write(payloadEncoded);
+    }
+
+    /**
+     * Receives the next packet from the given input stream.
+     * 
+     * @param inputStream
+     *            The stream where the packet shall be retrieved.
+     * @return The payload of the received packet.
+     * @throws IOException
+     */
+    public static String receiveUnencPacket(DataInputStream inputStream) throws IOException
+    {
+        // Prepare payload buffer
+        byte[] payloadEncoded = new byte[inputStream.readInt()];
+        inputStream.readFully(payloadEncoded);
+
+        // Decode payload
+        return new String(payloadEncoded);
+    }
 
     /**
      * Returns a random alpha numeric string with the given length.
