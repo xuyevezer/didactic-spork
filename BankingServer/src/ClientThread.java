@@ -154,14 +154,14 @@ public class ClientThread implements Runnable
      */
     public void dhke() throws IOException {
     	// Wait for dhke request
-    	String dhkeRequest = Utility.receivePacket(_clientSocketInputStream);
+    	String dhkeRequest = Utility.receiveUnencPacket(_clientSocketInputStream);
     	
     	//Send dhke information
     	if (dhkeRequest.equals("HELO"))
-    		Utility.sendPacket(_clientSocketOutputStream, _database.getDhkeMessage());
+    		Utility.sendUnencPacket(_clientSocketOutputStream, _database.getDhkeMessage());
     	
     	//Wait for clients dhke part
-    	String dhkeClientPart = Utility.receivePacket(_clientSocketInputStream);
+    	String dhkeClientPart = Utility.receiveUnencPacket(_clientSocketInputStream);
     	
     	//save the generated key
     	if(Integer.parseInt(dhkeClientPart) >= 0 

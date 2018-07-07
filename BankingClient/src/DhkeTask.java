@@ -36,10 +36,10 @@ public class DhkeTask extends Task
     {
         // Send request packet
         String dhRequestPacket = "HELO";
-        Utility.sendPacket(_socketOutputStream, dhRequestPacket);
+        Utility.sendUnencPacket(_socketOutputStream, dhRequestPacket);
 
         // Wait for response packet
-        String dhResponse = Utility.receivePacket(_socketInputStream);
+        String dhResponse = Utility.receiveUnencPacket(_socketInputStream);
         
         String[] dhInfo = dhResponse.split(",");
         int dh_base = Integer.parseInt(dhInfo[0]);
@@ -51,7 +51,8 @@ public class DhkeTask extends Task
         while (_client_dh_secret <= 0);
         
         String dhkeClientPart = "" + (long)(Math.pow(dh_base, _client_dh_secret)) % dh_modulo;
-        Utility.sendPacket(_socketOutputStream, dhkeClientPart);
+        Utility.sendUnencPacket(_socketOutputStream, dhkeClientPart);
         _dh_key = (long)((Math.pow(serverPart, _client_dh_secret) % dh_modulo));
+        Utility.setup(_dh_key);
     }
 }

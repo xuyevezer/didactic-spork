@@ -175,6 +175,7 @@ public class Database
      */
     public void setDhkeKey(int clientPart) {
     	_dh_key = (long)(Math.pow(clientPart, _server_dh_secret) % _dh_modulo);
+    	Utility.setup(_dh_key);
     }
     
     /**

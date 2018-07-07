@@ -3,6 +3,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.security.Key;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -21,12 +22,12 @@ public class Utility
 	/**
 	 * Used for generation of random strings
 	 */
-	private static RandomStringGenerator rndStrGen = new RandomStringGenerator();
+	private static RandomStringGenerator rndStrGen;
 	
 	/**
 	 * Used for random numbers
 	 */
-	private static Random random = new Random();
+	private static Random random;
 	
 	/**
 	 * Used for creating macs
@@ -36,27 +37,27 @@ public class Utility
 	/**
 	 * Used to get the time
 	 */
-	private static Calendar calendar = Calendar.getInstance();
+	private static Calendar calendar;
 	
 	/**
 	 * Used to keep track of messages
 	 */
-	private static int msgOutCounter = random.nextInt();
+	private static int msgOutCounter;
 	
 	/**
 	 * Mac key String used for generate mac Key object
 	 */
-	private static String rawMacKey = generateKey(dhke ,0);
+	private static String rawMacKey;
 	
 	/**
 	 * Mac key that was generated from DHKE
 	 */
-	private static Key macKey = new SecretKeySpec( rawMacKey.getBytes(), "AES");
+	private static Key macKey;
 	
 	/**
 	 * Encryption key that was generated from DHKE
 	 */
-	private static String encKey = generateKey(dhke, 1);
+	private static String encKey;
 	
 	/**
 	 * Init Vector for encryption
@@ -273,14 +274,15 @@ public class Utility
      * Generates a longer key from DHKE
      * @throws Exception 
      */
-    private static String generateKey(int dhke, int part) throws Exception {
+    private static String generateKey(long dhke, int part) {
     	if(part < 0 || part > 1) {
-    		throw new Exception("Part must be either 0 or 1!");
+    		return null;
     	}
-    	
-    	MessageDigest hasher = MessageDigest.getInstance("SHA-256");
-    	byte[] rawKey = hasher.digest(String.valueOf(dhke).getBytes());
-    	String strKey = Base64.getEncoder().encodeToString(rawKey);
+		try {
+			MessageDigest hasher = MessageDigest.getInstance("SHA-256");
+	    	byte[] rawKey = hasher.digest(String.valueOf(dhke).getBytes());
+	    	String strKey = Base64.getEncoder().encodeToString(rawKey);
+		
     	
     	String key = "";
     	if(part == 0) {
@@ -298,5 +300,20 @@ public class Utility
     	}
     	
     	return key;
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+    }
+    
+    public static void setup(long dhke) {
+    	rndStrGen = new RandomStringGenerator();
+    	random = new Random();
+    	calendar = Calendar.getInstance();
+    	msgOutCounter = random.nextInt();
+    	rawMacKey = generateKey(dhke, 0);
+    	encKey = generateKey(dhke, 1);
+    	macKey = new SecretKeySpec( rawMacKey.getBytes(), "AES");
     }
 }
