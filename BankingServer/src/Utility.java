@@ -2,6 +2,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Random;
 
 import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Helper class containing auxiliary functions.
@@ -42,14 +44,19 @@ public class Utility
 	private static int msgOutCounter = random.nextInt();
 	
 	/**
+	 * Mac key String used for generate mac Key object
+	 */
+	private static String rawMacKey = generateKey(dhke ,0);
+	
+	/**
 	 * Mac key that was generated from DHKE
 	 */
-	private static Key macKey; //= new SecretKeySpec( key, "AES");
+	private static Key macKey = new SecretKeySpec( rawMacKey.getBytes(), "AES");
 	
 	/**
 	 * Encryption key that was generated from DHKE
 	 */
-	private static String encKey;
+	private static String encKey = generateKey(dhke, 1);
 	
 	/**
 	 * Init Vector for encryption
@@ -230,5 +237,36 @@ public class Utility
     public static String getRandomString(int length)
     {
     	return rndStrGen.nextAlphaNumString(length);
+    }
+    
+    /**
+     * Generates a longer key from DHKE
+     * @throws Exception 
+     */
+    private static String generateKey(int dhke, int part) throws Exception {
+    	if(part < 0 || part > 1) {
+    		throw new Exception("Part must be either 0 or 1!");
+    	}
+    	
+    	MessageDigest hasher = MessageDigest.getInstance("SHA-256");
+    	byte[] rawKey = hasher.digest(String.valueOf(dhke).getBytes());
+    	String strKey = Base64.getEncoder().encodeToString(rawKey);
+    	
+    	String key = "";
+    	if(part == 0) {
+    		if((strKey.length() % 2) == 1) {
+    			key = strKey.substring(0, ((strKey.length() - 1) / 2));
+    		} else {
+    			key = strKey.substring(0, ((strKey.length()) / 2));
+    		}
+    	} else {
+    		if((strKey.length() % 2) == 1) {
+    			key = strKey.substring(((strKey.length() - 1) / 2), strKey.length() - 1);
+    		} else {
+    			key = strKey.substring(((strKey.length()) / 2), strKey.length() - 1);
+    		}
+    	}
+    	
+    	return key;
     }
 }
