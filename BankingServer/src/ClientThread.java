@@ -44,6 +44,9 @@ public class ClientThread implements Runnable
      */
     private int _userId = -1;
 
+    /**
+     * True if a key has been exchanged between client and server
+     */
     private boolean _keyExchanged = false;
     
     /**
@@ -79,7 +82,7 @@ public class ClientThread implements Runnable
             _clientSocketInputStream = new DataInputStream(_clientSocket.getInputStream());
             _clientSocketOutputStream = new DataOutputStream(_clientSocket.getOutputStream());
 
-            // Repeat login protocol until login is valid
+            // Repeat key exchange and login protocol until login is valid
             do {
             	dhke();
                 _userId = runLogin();
@@ -145,6 +148,10 @@ public class ClientThread implements Runnable
         }
     }
 
+    /**
+     * Performs a Diffie-Hellman Key Exchange with the client
+     * To get a key for further encryption
+     */
     public void dhke() throws IOException {
     	// Wait for dhke request
     	String dhkeRequest = Utility.receivePacket(_clientSocketInputStream);
@@ -156,10 +163,10 @@ public class ClientThread implements Runnable
     	//Wait for clients dhke part
     	String dhkeClientPart = Utility.receivePacket(_clientSocketInputStream);
     	
+    	//save the generated key
     	if(Integer.parseInt(dhkeClientPart) >= 0 
     			&& Integer.parseInt(dhkeClientPart) < _database.getDhkeModulo()) {
     		_database.setDhkeKey(Integer.parseInt(dhkeClientPart));
-    		System.out.println("key set");
     		_keyExchanged = true;
     	}
     }
